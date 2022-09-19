@@ -10,6 +10,10 @@ const cutFiles = async () => {
     await sharp(`./to-cut/${filesToCut[i]}`)
       // .extract({ left: 2757, top: 177, width: 1023, height: 1425 }) -- 4k
       .extract({ left: 1413, top: 90, width: 507, height: 703 })
+      .greyscale() // make it greyscale.greyscale() // make it greyscale
+      .negate()
+      .linear(1.4, 0)
+      .modulate({ brightness: 10 })
       .toFile(`./to-process/${filesToCut[i]}`);
   }
   console.log("## Finished to cut images");
