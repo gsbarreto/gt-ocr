@@ -1,0 +1,7 @@
+node_modules
+to-cut/*
+to-parse/*
+to-process/*
+*.traineddata
+.env
+package-lock.json
