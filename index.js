@@ -4,16 +4,23 @@ const { cutFiles } = require("./src/services/cutImages");
 
 const worker = createWorker({});
 
-const getContentFromImage = async (worker, filename) => {
-  const file = await fs.readFileSync(`./to-process/${filename}`);
-  const [name] = filename.split(".png");
-  console.log("Processing file>>>", name);
+const getContentFromImages = async (worker, folder) => {
+  const filesToProcess = await fs.readdirSync(`./to-process/${folder}`);
 
-  let {
-    data: { text },
-  } = await worker.recognize(file);
+  let textToSave = "";
 
-  await fs.writeFileSync(`./to-parse/${name}.txt`, text);
+  for (let i = 0; i < filesToProcess.length; i++) {
+    const filename = filesToProcess[i];
+    const file = await fs.readFileSync(`./to-process/${folder}/${filename}`);
+    const [name] = filename.split(".png");
+    console.log("Processing file>>>", name);
+    let {
+      data: { text },
+    } = await worker.recognize(file);
+    textToSave = `${textToSave}\n${text}`;
+  }
+
+  await fs.writeFileSync(`./to-parse/${folder}.txt`, textToSave);
 };
 
 (async () => {
@@ -24,10 +31,11 @@ const getContentFromImage = async (worker, filename) => {
   await worker.initialize("eng");
 
   console.log("## Starting image processing ");
-  const filesToProcess = await fs.readdirSync("./to-process");
+  const foldersToProcess = await fs.readdirSync("./to-process");
 
-  for (let i = 0; i < filesToProcess.length; i++) {
-    await getContentFromImage(worker, filesToProcess[i]);
+  for (let i = 0; i < foldersToProcess.length; i++) {
+    const folder = foldersToProcess[i];
+    await getContentFromImages(worker, folder);
   }
 
   await worker.terminate();
